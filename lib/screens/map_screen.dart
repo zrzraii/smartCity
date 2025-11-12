@@ -18,14 +18,6 @@ class MapScreen extends StatelessWidget {
       appBar: AppBar(title: Text(t.tabMap)),
       body: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-            child: Row(
-              children: [
-                SectionTitle(t.map),
-              ],
-            ),
-          ),
           Expanded(
             child: FlutterMap(
         options: MapOptions(

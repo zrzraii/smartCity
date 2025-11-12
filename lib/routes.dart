@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smart_city/l10n/gen/app_localizations.dart';
 
+// Import design system for colors
+import 'ui/design.dart'; // <-- ДОБАВЛЕНО
+
 import 'state/app_state.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
@@ -96,75 +99,33 @@ class _ShellState extends State<_Shell> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
+    // Используем стандартный NavigationBar (Material 3)
     return Scaffold(
       body: widget.navigationShell,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        backgroundColor: const Color(0xFF6337EF),
-        shape: const CircleBorder(),
-        child: const Icon(Icons.close, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        color: Colors.white,
-        elevation: 8,
-        child: SizedBox(
-          height: 70,
-          child: Row(
-            children: [
-              Expanded(
-                child: _BarItem(
-                  icon: currentIndex == 0 ? Icons.home : Icons.home_outlined,
-                  label: t.tabHome,
-                  selected: currentIndex == 0,
-                  onTap: () => _onTap(0),
-                ),
-              ),
-              const SizedBox(width: 56), // notch space
-              Expanded(
-                child: _BarItem(
-                  icon: currentIndex == 1 ? Icons.map : Icons.map_outlined,
-                  label: t.tabMap,
-                  selected: currentIndex == 1,
-                  onTap: () => _onTap(1),
-                ),
-              ),
-              Expanded(
-                child: _BarItem(
-                  icon: currentIndex == 2 ? Icons.person : Icons.person_outline,
-                  label: t.tabProfile,
-                  selected: currentIndex == 2,
-                  onTap: () => _onTap(2),
-                ),
-              ),
-            ],
+      // Убираем FloatingActionButton и BottomAppBar с вырезом
+      bottomNavigationBar: NavigationBar(
+        backgroundColor: AppColors.surface, //
+        indicatorColor: AppColors.primary.withOpacity(0.1), //
+        height: 60,
+        selectedIndex: currentIndex,
+        onDestinationSelected: _onTap,
+        // Используем цвета из вашего ui/design.dart
+        destinations: [
+          NavigationDestination(
+            icon: const Icon(Icons.home_outlined, color: AppColors.textSecondary), //
+            selectedIcon: const Icon(Icons.home, color: AppColors.primary), //
+            label: t.tabHome,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _BarItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  const _BarItem({required this.icon, required this.label, required this.selected, required this.onTap});
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF6337EF) : const Color(0xFF77838F);
-    return InkWell(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(height: 4),
-          Text(label, style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color)),
+          NavigationDestination(
+            icon: const Icon(Icons.map_outlined, color: AppColors.textSecondary), //
+            selectedIcon: const Icon(Icons.map, color: AppColors.primary), //
+            label: t.tabMap,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline, color: AppColors.textSecondary), //
+            selectedIcon: const Icon(Icons.person, color: AppColors.primary), //
+            label: t.tabProfile,
+          ),
         ],
       ),
     );

@@ -16,13 +16,76 @@ class ProfileScreen extends StatelessWidget {
     final appState = context.watch<AppState>();
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.profile)),
+      backgroundColor: const Color(0xFFF5F7FA), // светлый фон
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          t.profile,
+          style: const TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+            letterSpacing: 0.5,
+          ),
+        ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.black),
+      ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
-          SectionTitle(t.language),
-          Gaps.s,
-          CardContainer(
+          // Блок профиль пользователя
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                )
+              ],
+            ),
+            child: Row(
+              children: [
+                // Фото пользователя (заглушка)
+                CircleAvatar(
+                  radius: 40,
+                  backgroundColor: const Color(0xFFE8EAED),
+                  child: const Icon(Icons.person, color: Color(0xFFAAB0BF), size: 48),
+                ),
+                const SizedBox(width: 20),
+                // Информация о пользователе
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Айтжанова Райхан',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'aitraihan@gmail.com',
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 32),
+          // Язык
+          ProfileSection(
+            title: t.language,
             child: DropdownButton<Locale>(
               value: appState.locale,
               hint: Text(t.changeLanguage),
@@ -34,10 +97,9 @@ class ProfileScreen extends StatelessWidget {
               onChanged: (loc) => context.read<AppState>().setLocale(loc),
             ),
           ),
-          const SizedBox(height: 24),
-          SectionTitle(t.savedPosts),
-          Gaps.s,
-          CardContainer(
+          // Сохраненные посты
+          ProfileSection(
+            title: t.savedPosts,
             child: Column(
               children: [
                 if (appState.savedPostIds.isEmpty)
@@ -58,10 +120,9 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          SectionTitle(t.savedPlaces),
-          Gaps.s,
-          CardContainer(
+          // Сохраненные места
+          ProfileSection(
+            title: t.savedPlaces,
             child: Column(
               children: [
                 if (appState.savedPlaceIds.isEmpty)
@@ -82,10 +143,9 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          SectionTitle(t.savedSchedules),
-          Gaps.s,
-          CardContainer(
+          // Сохраненные расписания
+          ProfileSection(
+            title: t.savedSchedules,
             child: Column(
               children: [
                 if (appState.savedScheduleIds.isEmpty)
@@ -105,6 +165,36 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// Вспомогательный виджет для секций профиля
+class ProfileSection extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const ProfileSection({required this.title, required this.child, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24, top: 0),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+          ),
+          const SizedBox(height: 8),
+          child,
         ],
       ),
     );

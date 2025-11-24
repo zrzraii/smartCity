@@ -31,6 +31,12 @@ class ProfileScreen extends StatelessWidget {
         ),
         centerTitle: true,
         iconTheme: const IconThemeData(color: Colors.black),
+        actions: [
+          IconButton(
+            onPressed: () => context.push('/profile/settings'),
+            icon: const Icon(Icons.settings, color: Colors.black),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
@@ -95,6 +101,68 @@ class ProfileScreen extends StatelessWidget {
                 DropdownMenuItem(value: Locale('en'), child: Text('English')),
               ],
               onChanged: (loc) => context.read<AppState>().setLocale(loc),
+            ),
+          ),
+          // Быстрый доступ к сервисам профиля
+          ProfileSection(
+            title: 'Мои документы и сервисы',
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.badge_outlined),
+                  title: const Text('Идентификация и адреса'),
+                  subtitle: const Text('Паспорт, регистрация адреса'),
+                  onTap: () => context.push('/home/services/identification'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.directions_car_outlined),
+                  title: const Text('Транспорт'),
+                  subtitle: const Text('Водительское удостоверение, ТС'),
+                  onTap: () => context.push('/home/services/transport'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.family_restroom),
+                  title: const Text('Семья'),
+                  subtitle: const Text('Свидетельства о рождении и браке'),
+                  onTap: () => context.push('/home/services/family'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.health_and_safety),
+                  title: const Text('Медицина'),
+                  subtitle: const Text('Электронные медкарты и записи'),
+                  onTap: () => context.push('/home/services/medicine'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person_search),
+                  title: const Text('Соцобеспечение'),
+                  subtitle: const Text('Пенсии, пособия'),
+                  onTap: () => context.push('/home/services/social'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.school_outlined),
+                  title: const Text('Образование'),
+                  subtitle: const Text('Дипломы, сертификаты'),
+                  onTap: () => context.push('/home/services/education'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.home_outlined),
+                  title: const Text('Имущество'),
+                  subtitle: const Text('Недвижимость, транспорт'),
+                  onTap: () => context.push('/home/services/property'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.work_outline),
+                  title: const Text('Трудоустройство'),
+                  subtitle: const Text('Трудовая книжка, отзывы'),
+                  onTap: () => context.push('/home/services/employment'),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.gpp_good_outlined),
+                  title: const Text('Доверенности'),
+                  subtitle: const Text('На транспорт, недвижимость'),
+                  onTap: () => context.push('/home/services/powers'),
+                ),
+              ],
             ),
           ),
           // Сохраненные посты

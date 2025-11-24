@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:smart_city/l10n/gen/app_localizations.dart';
 
 import '../data/mock.dart';
+import '../models/notification_settings.dart';
 import '../models/user.dart';
 import '../state/app_state.dart';
 import '../ui/design.dart';
@@ -18,11 +19,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
   late User _currentUser;
   late PageController _pageController;
   int _currentPage = 0;
+  late NotificationSettings _localNotificationSettings;
 
   @override
   void initState() {
     super.initState();
     _currentUser = mockCurrentUser;
+    _localNotificationSettings = mockNotificationSettings;
     _pageController = PageController();
   }
 
@@ -155,7 +158,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Изменить имя',
               _currentUser.firstName,
               (value) {
-                // Handle update
+                setState(() {
+                  _currentUser = User(
+                    id: _currentUser.id,
+                    firstName: value,
+                    lastName: _currentUser.lastName,
+                    email: _currentUser.email,
+                    phoneNumber: _currentUser.phoneNumber,
+                    city: _currentUser.city,
+                    createdAt: _currentUser.createdAt,
+                  );
+                });
               },
             ),
           ),
@@ -169,7 +182,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Изменить фамилию',
               _currentUser.lastName,
               (value) {
-                // Handle update
+                setState(() {
+                  _currentUser = User(
+                    id: _currentUser.id,
+                    firstName: _currentUser.firstName,
+                    lastName: value,
+                    email: _currentUser.email,
+                    phoneNumber: _currentUser.phoneNumber,
+                    city: _currentUser.city,
+                    createdAt: _currentUser.createdAt,
+                  );
+                });
               },
             ),
           ),
@@ -183,7 +206,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Изменить email',
               _currentUser.email,
               (value) {
-                // Handle update
+                setState(() {
+                  _currentUser = User(
+                    id: _currentUser.id,
+                    firstName: _currentUser.firstName,
+                    lastName: _currentUser.lastName,
+                    email: value,
+                    phoneNumber: _currentUser.phoneNumber,
+                    city: _currentUser.city,
+                    createdAt: _currentUser.createdAt,
+                  );
+                });
               },
             ),
           ),
@@ -197,7 +230,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
               'Изменить номер',
               _currentUser.phoneNumber,
               (value) {
-                // Handle update
+                setState(() {
+                  _currentUser = User(
+                    id: _currentUser.id,
+                    firstName: _currentUser.firstName,
+                    lastName: _currentUser.lastName,
+                    email: _currentUser.email,
+                    phoneNumber: value,
+                    city: _currentUser.city,
+                    createdAt: _currentUser.createdAt,
+                  );
+                });
               },
             ),
           ),
@@ -250,12 +293,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ],
                     ),
                     Switch(
-                      value: context.watch<AppState>().appPassword != null,
+                      value: (context.watch<AppState>().appPassword?.isNotEmpty ?? false),
                       onChanged: (value) {
                         if (value) {
                           _showPasswordDialog(context);
                         } else {
                           context.read<AppState>().setAppPassword('');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Пароль удалён')),
+                          );
                         }
                       },
                     ),
@@ -282,33 +328,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: Theme.of(context).textTheme.titleSmall,
                 ),
                 Gaps.m,
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Email',
-                    hintText: _currentUser.email,
-                  ),
-                ),
-                Gaps.m,
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Пароль',
-                    hintText: '••••••••',
-                    suffixIcon: const Icon(Icons.visibility_off),
-                  ),
-                  obscureText: true,
-                ),
-                Gaps.xl,
-                PrimaryButton(
-                  text: 'Сохранить изменения',
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('Данные обновлены'),
-                        backgroundColor: AppColors.success,
+                Builder(builder: (context) {
+                  final emailController = TextEditingController(text: _currentUser.email);
+                  final passwordController = TextEditingController();
+                  return Column(
+                    children: [
+                      TextField(
+                        controller: emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          hintText: _currentUser.email,
+                        ),
                       ),
-                    );
-                  },
-                ),
+                      Gaps.m,
+                      TextField(
+                        controller: passwordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Пароль',
+                          hintText: '••••••••',
+                          suffixIcon: Icon(Icons.visibility_off),
+                        ),
+                        obscureText: true,
+                      ),
+                      Gaps.xl,
+                      PrimaryButton(
+                        text: 'Сохранить изменения',
+                        onPressed: () {
+                          setState(() {
+                            _currentUser = User(
+                              id: _currentUser.id,
+                              firstName: _currentUser.firstName,
+                              lastName: _currentUser.lastName,
+                              email: emailController.text,
+                              phoneNumber: _currentUser.phoneNumber,
+                              city: _currentUser.city,
+                              createdAt: _currentUser.createdAt,
+                            );
+                          });
+                          if (passwordController.text.isNotEmpty) {
+                            context.read<AppState>().setAppPassword(passwordController.text);
+                          }
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text('Данные обновлены'),
+                              backgroundColor: AppColors.success,
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  );
+                }),
               ],
             ),
           ),
@@ -320,7 +390,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   // ============= NOTIFICATIONS TAB =============
   Widget _buildNotificationsTab(BuildContext context, AppLocalizations t) {
-    final settings = mockNotificationSettings;
+    final settings = _localNotificationSettings;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -335,7 +405,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте предупреждения о штормовых явлениях',
             value: settings.stormAlerts,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(stormAlerts: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -344,7 +415,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте прогнозы и предупреждения о погоде',
             value: settings.weatherAlerts,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(weatherAlerts: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -353,7 +425,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте уведомления об изменениях маршрутов',
             value: settings.transportAlerts,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(transportAlerts: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -362,7 +435,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте информацию о перебоях в сервисах',
             value: settings.utilitiesAlerts,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(utilitiesAlerts: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -371,7 +445,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте критичные оповещения',
             value: settings.emergencyAlerts,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(emergencyAlerts: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.xl,
@@ -382,7 +457,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте уведомления на устройстве',
             value: settings.pushNotifications,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(pushNotifications: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -391,7 +467,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте уведомления на email',
             value: settings.emailNotifications,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(emailNotifications: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.m,
@@ -400,7 +477,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
             subtitle: 'Получайте важные уведомления по SMS',
             value: settings.smsNotifications,
             onChanged: (value) {
-              // Handle change
+              setState(() => _localNotificationSettings = _localNotificationSettings.copyWith(smsNotifications: value));
+              context.read<AppState>().setNotificationSettings(_localNotificationSettings);
             },
           ),
           Gaps.xxl,
@@ -682,34 +760,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String value,
     required VoidCallback onTap,
   }) {
+    const double rowHeight = 56;
     return CardContainer(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
       child: InkWell(
         onTap: onTap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: AppColors.primary),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title, style: Theme.of(context).textTheme.bodyMedium),
-                    Gaps.xs,
-                    Text(
-                      value,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.textSecondary,
-                          ),
+        borderRadius: BorderRadius.circular(12),
+        child: SizedBox(
+          height: rowHeight,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                  ],
-                ),
-              ],
-            ),
-            Icon(Icons.edit, size: 18, color: AppColors.textTertiary),
-          ],
+                    child: Icon(icon, color: AppColors.primary, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(title, style: Theme.of(context).textTheme.bodyMedium),
+                      Gaps.xs,
+                      Text(
+                        value,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.textSecondary,
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Icon(Icons.edit, size: 18, color: AppColors.textTertiary),
+            ],
+          ),
         ),
       ),
     );
@@ -721,32 +814,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
+    const double rowHeight = 72;
     return CardContainer(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: Theme.of(context).textTheme.titleSmall),
-                Gaps.s,
-                Text(
-                  subtitle,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: AppColors.textSecondary),
-                ),
-              ],
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      child: SizedBox(
+        height: rowHeight,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: Theme.of(context).textTheme.bodyMedium),
+                  Gaps.s,
+                  Text(
+                    subtitle,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: AppColors.textSecondary),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-          ),
-        ],
+            SizedBox(
+              width: 56,
+              child: Align(
+                alignment: Alignment.centerRight,
+                child: Switch(
+                  value: value,
+                  onChanged: onChanged,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

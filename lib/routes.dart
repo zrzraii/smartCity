@@ -9,6 +9,11 @@ import 'screens/map_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/alerts_screen.dart' as alerts;
 import 'screens/settings_screen.dart' as settings;
+import 'screens/news_screen.dart';
+import 'screens/services_screen.dart';
+import 'screens/service_category_screen.dart';
+import 'screens/service_form_screen.dart';
+import 'screens/submissions_history_screen.dart';
 import 'screens/post_detail_screen.dart';
 import 'screens/place_detail_screen.dart';
 
@@ -34,6 +39,24 @@ class AppRouter {
                   builder: (context, state) => const HomeScreen(),
                   routes: [
                     GoRoute(
+                      path: 'news',
+                      name: 'news',
+                      builder: (context, state) => const NewsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'services',
+                      name: 'services',
+                      builder: (context, state) => const ServicesScreen(),
+                    ),
+                    GoRoute(
+                      path: 'services/:categoryId',
+                      name: 'serviceCategory',
+                      builder: (context, state) {
+                        final id = state.pathParameters['categoryId']!;
+                        return ServiceCategoryScreen(categoryId: id);
+                      },
+                    ),
+                    GoRoute(
                       path: 'post/:id',
                       name: 'post',
                       builder: (context, state) {
@@ -41,7 +64,31 @@ class AppRouter {
                         return PostDetailScreen(postId: id);
                       },
                     ),
+                    GoRoute(
+                      path: 'services/:serviceId/:itemId',
+                      name: 'serviceForm',
+                      builder: (context, state) {
+                        final serviceId = state.pathParameters['serviceId']!;
+                        final itemId = state.pathParameters['itemId']!;
+                        return ServiceFormScreen(serviceId: serviceId, itemId: itemId);
+                      },
+                    ),
+                    GoRoute(
+                      path: 'submissions',
+                      name: 'submissions',
+                      builder: (context, state) => const SubmissionsHistoryScreen(),
+                    ),
                   ],
+                ),
+              ],
+            ),
+            // News Branch
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/news',
+                  name: 'news_root',
+                  builder: (context, state) => const NewsScreen(),
                 ),
               ],
             ),
@@ -132,8 +179,13 @@ class _ShellState extends State<_Shell> {
           NavigationDestination(
             icon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
             selectedIcon: const Icon(Icons.home, color: AppColors.primary),
-            label: t.tabHome,
+              label: t.tabHome,
           ),
+            NavigationDestination(
+              icon: const Icon(Icons.article_outlined, color: AppColors.textSecondary),
+              selectedIcon: const Icon(Icons.article, color: AppColors.primary),
+              label: 'Новости',
+            ),
           NavigationDestination(
             icon: const Icon(Icons.map_outlined, color: AppColors.textSecondary),
             selectedIcon: const Icon(Icons.map, color: AppColors.primary),

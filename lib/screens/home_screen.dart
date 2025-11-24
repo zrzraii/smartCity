@@ -18,6 +18,17 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late TextEditingController _searchController;
   List<Post> _filteredPosts = [];
+  // Mock services for the Services grid
+  final List<Map<String, dynamic>> _services = [
+    {'id': 'svc_pay', 'title': 'Платежи', 'icon': Icons.account_balance_wallet},
+    {'id': 'svc_requests', 'title': 'Заявки', 'icon': Icons.build},
+    {'id': 'svc_transport', 'title': 'Транспорт', 'icon': Icons.directions_bus},
+    {'id': 'svc_health', 'title': 'Медицина', 'icon': Icons.local_hospital},
+    {'id': 'svc_announcements', 'title': 'Объявления', 'icon': Icons.campaign},
+    {'id': 'svc_support', 'title': 'Поддержка', 'icon': Icons.support_agent},
+  ];
+
+  String _sortBy = 'Популярные';
 
   @override
   void initState() {
@@ -50,6 +61,20 @@ class _HomeScreenState extends State<HomeScreen> {
   void _clearSearch() {
     _searchController.clear();
     _filteredPosts = mockPosts;
+  }
+
+  void _changeSort(String value) {
+    setState(() {
+      _sortBy = value;
+      // Mock sorting behaviour: just reorder by chosen option
+      if (_sortBy == 'По алфавиту') {
+        _services.sort((a, b) => (a['title'] as String).compareTo(b['title'] as String));
+      } else if (_sortBy == 'По удаленности') {
+        // keep mock order (no real distance)
+      } else {
+        // Популярные — default order
+      }
+    });
   }
 
   @override
@@ -85,6 +110,96 @@ class _HomeScreenState extends State<HomeScreen> {
               controller: _searchController,
               hintText: 'Поиск новостей...',
               onClear: _clearSearch,
+            ),
+            Gaps.xl,
+            // Services section
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                SectionTitle('Сервисы'),
+                Row(
+                  children: [
+                    Text(
+                      'Сортировка:',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.textSecondary,
+                          ),
+                    ),
+                    const SizedBox(width: 8),
+                    PopupMenuButton<String>(
+                      onSelected: _changeSort,
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(value: 'Популярные', child: Text('Популярные')),
+                        const PopupMenuItem(value: 'По алфавиту', child: Text('По алфавиту')),
+                        const PopupMenuItem(value: 'По удаленности', child: Text('По удаленности')),
+                      ],
+                      child: Row(
+                        children: [
+                          Text(_sortBy, style: Theme.of(context).textTheme.bodyMedium),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.keyboard_arrow_down, size: 20),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            Gaps.m,
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1,
+              ),
+              itemCount: _services.length,
+              itemBuilder: (context, index) {
+                final svc = _services[index];
+                return GestureDetector(
+                  onTap: () {
+                    // Navigate to services page (mock)
+                    context.push('/home/services');
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: AppColors.border),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.08),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(svc['icon'] as IconData, color: AppColors.primary, size: 22),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          svc['title'] as String,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
             Gaps.xl,
             // Section Title

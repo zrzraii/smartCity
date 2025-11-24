@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
+import '../data/mock.dart';
 import '../models/notification_settings.dart';
 
 class AppState extends ChangeNotifier {
@@ -9,6 +11,7 @@ class AppState extends ChangeNotifier {
   static const _keySavedSchedules = 'saved_schedules';
   static const _keyAppPassword = 'app_password';
   static const _keyNotificationSettings = 'notification_settings_';
+  static const _keySubmissions = 'submissions_json';
 
   Locale? _locale;
   Set<String> _savedPostIds = {};
@@ -23,6 +26,8 @@ class AppState extends ChangeNotifier {
   Set<String> get savedScheduleIds => _savedScheduleIds;
   String? get appPassword => _appPassword;
   NotificationSettings get notificationSettings => _notificationSettings;
+  List<Map<String, dynamic>> _submissions = [];
+  List<Map<String, dynamic>> get submissions => List.unmodifiable(_submissions);
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -34,6 +39,44 @@ class AppState extends ChangeNotifier {
     _savedPlaceIds = prefs.getStringList(_keySavedPlaces)?.toSet() ?? {};
     _savedScheduleIds = prefs.getStringList(_keySavedSchedules)?.toSet() ?? {};
     _appPassword = prefs.getString(_keyAppPassword);
+    // load submissions
+    final subsJson = prefs.getString(_keySubmissions);
+    if (subsJson != null && subsJson.isNotEmpty) {
+      try {
+        final list = jsonDecode(subsJson) as List<dynamic>;
+        _submissions = list.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      } catch (_) {
+        _submissions = List.from(mockSubmissions);
+      }
+    } else {
+      _submissions = List.from(mockSubmissions);
+    }
+    notifyListeners();
+  }
+
+  Future<void> _saveSubmissions() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keySubmissions, jsonEncode(_submissions));
+  }
+
+  Future<void> addSubmission(Map<String, dynamic> s) async {
+    _submissions.insert(0, s);
+    await _saveSubmissions();
+    notifyListeners();
+  }
+
+  Future<void> updateSubmission(String id, Map<String, dynamic> data) async {
+    final idx = _submissions.indexWhere((e) => e['id'] == id);
+    if (idx != -1) {
+      _submissions[idx] = {..._submissions[idx], ...data};
+      await _saveSubmissions();
+      notifyListeners();
+    }
+  }
+
+  Future<void> removeSubmission(String id) async {
+    _submissions.removeWhere((e) => e['id'] == id);
+    await _saveSubmissions();
     notifyListeners();
   }
 

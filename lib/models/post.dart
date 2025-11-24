@@ -4,6 +4,8 @@ class Post {
   final String content;
   final String? imageUrl;
   final DateTime date;
+  final String? author;
+  final int? readTimeMinutes;
 
   Post({
     required this.id,
@@ -11,5 +13,7 @@ class Post {
     required this.content,
     required this.date,
     this.imageUrl,
+    this.author,
+    this.readTimeMinutes,
   });
 }

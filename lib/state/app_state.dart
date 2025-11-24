@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/notification_settings.dart';
 
 class AppState extends ChangeNotifier {
   static const _keyLocale = 'locale';
   static const _keySavedPosts = 'saved_posts';
   static const _keySavedPlaces = 'saved_places';
   static const _keySavedSchedules = 'saved_schedules';
+  static const _keyAppPassword = 'app_password';
+  static const _keyNotificationSettings = 'notification_settings_';
 
   Locale? _locale;
   Set<String> _savedPostIds = {};
   Set<String> _savedPlaceIds = {};
   Set<String> _savedScheduleIds = {};
+  String? _appPassword;
+  late NotificationSettings _notificationSettings;
 
   Locale? get locale => _locale;
   Set<String> get savedPostIds => _savedPostIds;
   Set<String> get savedPlaceIds => _savedPlaceIds;
   Set<String> get savedScheduleIds => _savedScheduleIds;
+  String? get appPassword => _appPassword;
+  NotificationSettings get notificationSettings => _notificationSettings;
 
   Future<void> load() async {
     final prefs = await SharedPreferences.getInstance();
@@ -26,6 +33,7 @@ class AppState extends ChangeNotifier {
     _savedPostIds = prefs.getStringList(_keySavedPosts)?.toSet() ?? {};
     _savedPlaceIds = prefs.getStringList(_keySavedPlaces)?.toSet() ?? {};
     _savedScheduleIds = prefs.getStringList(_keySavedSchedules)?.toSet() ?? {};
+    _appPassword = prefs.getString(_keyAppPassword);
     notifyListeners();
   }
 
@@ -71,5 +79,22 @@ class AppState extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(_keySavedSchedules, _savedScheduleIds.toList());
     notifyListeners();
+  }
+
+  Future<void> setAppPassword(String password) async {
+    _appPassword = password;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyAppPassword, password);
+    notifyListeners();
+  }
+
+  Future<void> setNotificationSettings(NotificationSettings settings) async {
+    _notificationSettings = settings;
+    notifyListeners();
+  }
+
+  Future<bool> verifyAppPassword(String password) async {
+    if (_appPassword == null) return true;
+    return _appPassword == password;
   }
 }

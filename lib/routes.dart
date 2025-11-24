@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:smart_city/l10n/gen/app_localizations.dart';
 
-// Import design system for colors
-import 'ui/design.dart'; // <-- ДОБАВЛЕНО
-
+import 'ui/design.dart';
 import 'state/app_state.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_screen.dart';
 import 'screens/profile_screen.dart';
+import 'screens/alerts_screen.dart' as alerts;
+import 'screens/settings_screen.dart' as settings;
 import 'screens/post_detail_screen.dart';
 import 'screens/place_detail_screen.dart';
 
@@ -25,6 +25,7 @@ class AppRouter {
             return _Shell(navigationShell: navigationShell);
           },
           branches: [
+            // Home Branch
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -44,6 +45,7 @@ class AppRouter {
                 ),
               ],
             ),
+            // Map Branch
             StatefulShellBranch(
               routes: [
                 GoRoute(
@@ -63,12 +65,30 @@ class AppRouter {
                 ),
               ],
             ),
+            // Alerts Branch
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: '/alerts',
+                  name: 'alerts',
+                  builder: (context, state) => const alerts.AlertsScreen(),
+                ),
+              ],
+            ),
+            // Profile Branch
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: '/profile',
                   name: 'profile',
                   builder: (context, state) => const ProfileScreen(),
+                  routes: [
+                    GoRoute(
+                      path: 'settings',
+                      name: 'settings',
+                      builder: (context, state) => const settings.SettingsScreen(),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -99,31 +119,34 @@ class _ShellState extends State<_Shell> {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
-    // Используем стандартный NavigationBar (Material 3)
+    
     return Scaffold(
       body: widget.navigationShell,
-      // Убираем FloatingActionButton и BottomAppBar с вырезом
       bottomNavigationBar: NavigationBar(
-        backgroundColor: AppColors.surface, //
-        indicatorColor: AppColors.primary.withOpacity(0.1), //
+        backgroundColor: AppColors.surface,
+        indicatorColor: AppColors.primary.withOpacity(0.1),
         height: 60,
         selectedIndex: currentIndex,
         onDestinationSelected: _onTap,
-        // Используем цвета из вашего ui/design.dart
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined, color: AppColors.textSecondary), //
-            selectedIcon: const Icon(Icons.home, color: AppColors.primary), //
+            icon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
+            selectedIcon: const Icon(Icons.home, color: AppColors.primary),
             label: t.tabHome,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.map_outlined, color: AppColors.textSecondary), //
-            selectedIcon: const Icon(Icons.map, color: AppColors.primary), //
+            icon: const Icon(Icons.map_outlined, color: AppColors.textSecondary),
+            selectedIcon: const Icon(Icons.map, color: AppColors.primary),
             label: t.tabMap,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.person_outline, color: AppColors.textSecondary), //
-            selectedIcon: const Icon(Icons.person, color: AppColors.primary), //
+            icon: const Icon(Icons.notifications_outlined, color: AppColors.textSecondary),
+            selectedIcon: const Icon(Icons.notifications, color: AppColors.primary),
+            label: 'Оповещения',
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
+            selectedIcon: const Icon(Icons.person, color: AppColors.primary),
             label: t.tabProfile,
           ),
         ],

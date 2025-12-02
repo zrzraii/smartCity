@@ -2,37 +2,78 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
-  // Primary colors
-  static const primary = Color(0xFF6337EF);
-  static const primaryLight = Color(0xFFEEE9F5);
-  static const primaryDark = Color(0xFF4A24C2);
+  // City inspired palette
+  static const copper = Color(0xFFC46838);
+  static const copperDark = Color(0xFF8C3A16);
+  static const accent = Color(0xFF1F6E8C);
+  static const accentMuted = Color(0xFFD1E4EA);
+
+  static const primary = copper;
+  static const primaryLight = Color(0xFFEFD2BF);
+  static const primaryDark = copperDark;
 
   // Background & Surface
-  static const bg = Color(0xFFF8F9FB);
-  static const surface = Colors.white;
-  static const surfaceSecondary = Color(0xFFF5F6F8);
+  static const bg = Color(0xFFF7F3ED);
+  static const surface = Color(0xFFFEFCF8);
+  static const surfaceSecondary = Color(0xFFF1E7DA);
+  static const surfaceMuted = Color(0xFFE6DDD1);
 
   // Text colors
-  static const textPrimary = Color(0xFF1A1A1A);
-  static const textSecondary = Color(0xFF666666);
-  static const textTertiary = Color(0xFF999999);
-  static const textHint = Color(0xFFBBBBBB);
+  static const textPrimary = Color(0xFF1F1F1F);
+  static const textSecondary = Color(0xFF5B5B5B);
+  static const textTertiary = Color(0xFF8B8B8B);
+  static const textHint = Color(0xFFB6AFA5);
 
   // Semantic colors
-  static const success = Color(0xFF10B981);
-  static const warning = Color(0xFFF59E0B);
-  static const error = Color(0xFFEF4444);
-  static const info = Color(0xFF3B82F6);
-
-  // Alert severity colors
-  static const criticalRed = Color(0xFFDC2626);
-  static const highOrange = Color(0xFFEA580C);
-  static const mediumYellow = Color(0xFFEAB308);
-  static const lowGreen = Color(0xFF16A34A);
+  static const success = Color(0xFF2F855A);
+  static const warning = Color(0xFFE08C3C);
+  static const error = Color(0xFFD14343);
+  static const info = Color(0xFF1F6E8C);
+  static const criticalRed = Color(0xFFD14343);
+  static const highOrange = Color(0xFFE08C3C);
+  static const mediumYellow = Color(0xFFF3C144);
+  static const lowGreen = Color(0xFF2F855A);
 
   // Borders & Dividers
-  static const border = Color(0xFFE5E7EB);
-  static const divider = Color(0xFFF0F0F0);
+  static const border = Color(0xFFE3D8CA);
+  static const divider = Color(0xFFF2E8DB);
+}
+
+class AppGradients {
+  static const copperDawn = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [Color(0xFFF4D1B0), Color(0xFFC46838)],
+  );
+
+  static const steppeSky = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    colors: [Color(0xFFDCE6E4), Color(0xFFFEFAF3)],
+  );
+}
+
+class AppShadows {
+  static const soft = [
+    BoxShadow(
+      color: Color(0x14000000),
+      blurRadius: 18,
+      offset: Offset(0, 10),
+    ),
+  ];
+
+  static const card = [
+    BoxShadow(
+      color: Color(0x0F000000),
+      blurRadius: 24,
+      offset: Offset(0, 14),
+    ),
+  ];
+}
+
+Color fadedColor(Color color, double opacity) {
+  // ignore: deprecated_member_use
+  return color.withOpacity(opacity);
 }
 
 class Gaps {
@@ -45,45 +86,76 @@ class Gaps {
 }
 
 ThemeData buildAppTheme() {
-  final base = ThemeData(
-    useMaterial3: true,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: AppColors.primary,
-      brightness: Brightness.light,
-    ),
+  final scheme = ColorScheme.fromSeed(
+    seedColor: AppColors.primary,
+    brightness: Brightness.light,
+    surface: AppColors.surface,
+  ).copyWith(
+    primary: AppColors.primary,
+    onPrimary: Colors.white,
+    secondary: AppColors.accent,
+    onSecondary: Colors.white,
+    error: AppColors.error,
+    onError: Colors.white,
+    surface: AppColors.surface,
+    onSurface: AppColors.textPrimary,
   );
 
-  final textTheme = GoogleFonts.interTextTheme(base.textTheme).apply(
+  final base = ThemeData(useMaterial3: true, colorScheme: scheme);
+  final textTheme = GoogleFonts.interTextTheme(base.textTheme).copyWith(
+    titleLarge: base.textTheme.titleLarge?.copyWith(letterSpacing: -0.5, fontWeight: FontWeight.w700),
+    titleMedium: base.textTheme.titleMedium?.copyWith(letterSpacing: -0.2, fontWeight: FontWeight.w600),
+    titleSmall: base.textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+  ).apply(
     bodyColor: AppColors.textPrimary,
     displayColor: AppColors.textPrimary,
   );
 
   return base.copyWith(
-    scaffoldBackgroundColor: AppColors.bg,
-    appBarTheme: const AppBarTheme(
-      elevation: 0,
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
-      foregroundColor: AppColors.textPrimary,
-    ),
     textTheme: textTheme,
+    scaffoldBackgroundColor: AppColors.bg,
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      centerTitle: false,
+      titleTextStyle: textTheme.titleMedium,
+      iconTheme: const IconThemeData(color: AppColors.textPrimary),
+    ),
+    dividerTheme: const DividerThemeData(color: AppColors.divider, thickness: 1),
+    navigationBarTheme: base.navigationBarTheme.copyWith(
+      backgroundColor: AppColors.surface,
+      indicatorColor: fadedColor(AppColors.primary, 0.12),
+      labelTextStyle: WidgetStateProperty.all(textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w600)),
+    ),
+    cardTheme: CardThemeData(
+      color: AppColors.surface,
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18), side: const BorderSide(color: AppColors.border)),
+      margin: EdgeInsets.zero,
+    ),
+    listTileTheme: ListTileThemeData(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      iconColor: AppColors.accent,
+      titleTextStyle: textTheme.bodyLarge,
+      subtitleTextStyle: textTheme.bodySmall?.copyWith(color: AppColors.textSecondary),
+    ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
       fillColor: AppColors.surface,
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.border),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(color: AppColors.border),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.primary, width: 2),
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(color: AppColors.primary, width: 1.8),
       ),
       hintStyle: textTheme.bodyMedium?.copyWith(color: AppColors.textHint),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     ),
   );
 }
@@ -94,11 +166,13 @@ class SectionTitle extends StatelessWidget {
   final String text;
   final FontWeight fontWeight;
   final double fontSize;
+  final Color? color;
   const SectionTitle(
     this.text, {
     super.key,
-    this.fontWeight = FontWeight.w600,
-    this.fontSize = 18,
+    this.fontWeight = FontWeight.w700,
+    this.fontSize = 20,
+    this.color,
   });
 
   @override
@@ -107,8 +181,49 @@ class SectionTitle extends StatelessWidget {
         style: Theme.of(context).textTheme.titleMedium?.copyWith(
               fontWeight: fontWeight,
               fontSize: fontSize,
+              color: color ?? AppColors.textPrimary,
             ),
       );
+}
+
+class SectionHeader extends StatelessWidget {
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final EdgeInsets padding;
+
+  const SectionHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.padding = const EdgeInsets.symmetric(vertical: 4),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: padding,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: theme.textTheme.titleMedium),
+                if (subtitle != null) ...[
+                  Gaps.xs,
+                  Text(subtitle!, style: theme.textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                ],
+              ],
+            ),
+          ),
+          if (trailing != null) trailing!,
+        ],
+      ),
+    );
+  }
 }
 
 class SquareIconButton extends StatelessWidget {
@@ -125,7 +240,7 @@ class SquareIconButton extends StatelessWidget {
     this.onTap,
     this.backgroundColor,
     this.iconColor,
-    this.size = 40,
+    this.size = 44,
     this.iconSize = 20,
   });
 
@@ -133,9 +248,9 @@ class SquareIconButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Material(
       color: backgroundColor ?? AppColors.surface,
-      borderRadius: BorderRadius.circular(8),
+      borderRadius: BorderRadius.circular(12),
       child: InkWell(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         onTap: onTap,
         child: SizedBox(
           width: size,
@@ -157,30 +272,29 @@ class CardContainer extends StatelessWidget {
   final Color backgroundColor;
   final double borderRadius;
   final BoxBorder? border;
+  final Gradient? gradient;
+  final bool showShadow;
 
   const CardContainer({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(12),
+    this.padding = const EdgeInsets.all(16),
     this.backgroundColor = AppColors.surface,
-    this.borderRadius = 12,
+    this.borderRadius = 20,
     this.border,
+    this.gradient,
+    this.showShadow = true,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: backgroundColor,
+        color: gradient == null ? backgroundColor : null,
+        gradient: gradient,
         borderRadius: BorderRadius.circular(borderRadius),
-        border: border,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: border ?? Border.all(color: AppColors.border),
+        boxShadow: showShadow ? AppShadows.soft : [],
       ),
       padding: padding,
       child: child,
@@ -202,7 +316,7 @@ class PrimaryButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.width,
-    this.height = 48,
+    this.height = 52,
     this.icon,
   });
 
@@ -217,9 +331,8 @@ class PrimaryButton extends StatelessWidget {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         child: isLoading
             ? const SizedBox(
@@ -232,6 +345,7 @@ class PrimaryButton extends StatelessWidget {
               )
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   if (icon != null) ...[
                     Icon(icon, size: 18),
@@ -257,7 +371,7 @@ class SecondaryButton extends StatelessWidget {
     required this.text,
     required this.onPressed,
     this.width,
-    this.height = 48,
+    this.height = 52,
     this.icon,
   });
 
@@ -269,14 +383,14 @@ class SecondaryButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onPressed,
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.primary),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          foregroundColor: AppColors.textPrimary,
+          side: const BorderSide(color: AppColors.border, width: 1.2),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          textStyle: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w600),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
               Icon(icon, size: 18),
@@ -305,17 +419,147 @@ class AlertBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: backgroundColor,
-        borderRadius: BorderRadius.circular(6),
+        borderRadius: BorderRadius.circular(40),
       ),
       child: Text(
         label,
         style: Theme.of(context).textTheme.bodySmall?.copyWith(
               color: textColor,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
+      ),
+    );
+  }
+}
+
+class StatusChip extends StatelessWidget {
+  final String label;
+  final Color color;
+  final IconData? icon;
+
+  const StatusChip({
+    super.key,
+    required this.label,
+    required this.color,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: fadedColor(color, 0.12),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: fadedColor(color, 0.4)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 6),
+          ],
+          Text(
+            label,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: color,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class InfoPill extends StatelessWidget {
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color? color;
+
+  const InfoPill({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: fadedColor(color ?? AppColors.surface, 0.9),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.border),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppColors.accent, size: 18),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(value, style: theme.textTheme.titleSmall),
+              Text(label, style: theme.textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class FilterPill extends StatelessWidget {
+  final String label;
+  final bool isActive;
+  final VoidCallback? onTap;
+  final IconData? icon;
+
+  const FilterPill({
+    super.key,
+    required this.label,
+    this.isActive = false,
+    this.onTap,
+    this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isActive ? AppColors.primary : AppColors.border;
+    final textColor = isActive ? Colors.white : AppColors.textPrimary;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: isActive ? AppColors.primary : AppColors.surface,
+          borderRadius: BorderRadius.circular(30),
+          border: Border.all(color: color),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, size: 16, color: textColor),
+              const SizedBox(width: 6),
+            ],
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: textColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -349,21 +593,6 @@ class SearchTextField extends StatelessWidget {
                 onPressed: onClear,
               )
             : null,
-        filled: true,
-        fillColor: AppColors.surface,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.border),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(vertical: 12),
       ),
     );
   }

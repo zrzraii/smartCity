@@ -10,7 +10,6 @@ class AppState extends ChangeNotifier {
   static const _keySavedPlaces = 'saved_places';
   static const _keySavedSchedules = 'saved_schedules';
   static const _keyAppPassword = 'app_password';
-  static const _keyNotificationSettings = 'notification_settings_';
   static const _keySubmissions = 'submissions_json';
 
   Locale? _locale;

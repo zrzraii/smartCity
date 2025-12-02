@@ -42,7 +42,6 @@ class ServicesScreen extends StatelessWidget {
             final id = s['id'] as String;
             final title = s['title'] as String;
             final desc = s['description'] as String;
-            final items = (s['items'] as List<dynamic>).length;
             final icon = _icons[id] ?? Icons.miscellaneous_services;
 
             return CardContainer(
@@ -58,7 +57,7 @@ class ServicesScreen extends StatelessWidget {
                         width: 60,
                         height: 48,
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.08),
+                          color: fadedColor(AppColors.primary, 0.08),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(icon, color: AppColors.primary),

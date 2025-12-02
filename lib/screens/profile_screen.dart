@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:smart_city/l10n/gen/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:smart_city/l10n/gen/app_localizations.dart';
 
-import '../state/app_state.dart';
 import '../data/mock.dart';
+import '../state/app_state.dart';
 import '../ui/design.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,257 +14,209 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
+    final user = mockCurrentUser;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA), // светлый фон
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          t.profile,
-          style: const TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-            letterSpacing: 0.5,
-          ),
+        titleSpacing: 16,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.profile, style: Theme.of(context).textTheme.titleLarge),
+            Text(user.city, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+          ],
         ),
-        centerTitle: true,
-        iconTheme: const IconThemeData(color: Colors.black),
         actions: [
-          IconButton(
-            onPressed: () => context.push('/profile/settings'),
-            icon: const Icon(Icons.settings, color: Colors.black),
+          SquareIconButton(
+            icon: Icons.settings_outlined,
+            onTap: () => context.push('/profile/settings'),
           ),
+          const SizedBox(width: 12),
         ],
       ),
       body: ListView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(16),
         children: [
-          // Блок профиль пользователя
-          Container(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey.withOpacity(0.1),
-                  blurRadius: 8,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
+          CardContainer(
+            gradient: AppGradients.copperDawn,
+            border: Border.all(color: Colors.transparent),
             child: Row(
               children: [
-                // Фото пользователя (заглушка)
                 CircleAvatar(
-                  radius: 40,
-                  backgroundColor: const Color(0xFFE8EAED),
-                  child: const Icon(Icons.person, color: Color(0xFFAAB0BF), size: 48),
+                  radius: 36,
+                  backgroundColor: fadedColor(Colors.white, 0.2),
+                  child: const Icon(Icons.person_outline, size: 40, color: Colors.white),
                 ),
-                const SizedBox(width: 20),
-                // Информация о пользователе
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Айтжанова Райхан',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${user.firstName} ${user.lastName}', style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.white)),
+                      Text(user.email, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70)),
+                      Gaps.s,
+                      Row(
+                        children: const [
+                          Expanded(child: _ProfileStat(label: 'Документы', value: '12 активных')),
+                          Expanded(child: _ProfileStat(label: 'Сервисы', value: '8 подключено')),
+                        ],
                       ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Gaps.xl,
+          SectionHeader(title: 'Мои сервисы', subtitle: 'Часто используемые разделы'),
+          Gaps.m,
+          GridView.count(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            crossAxisCount: 2,
+            mainAxisSpacing: 12,
+            crossAxisSpacing: 12,
+            childAspectRatio: 1.2,
+            children: _quickActions.map((action) {
+              return GestureDetector(
+                onTap: () => context.push(action['route'] as String),
+                child: CardContainer(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: fadedColor(AppColors.primary, 0.08),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Icon(action['icon'] as IconData, color: AppColors.primary),
+                      ),
+                      const Spacer(),
+                      Text(action['title'] as String, style: Theme.of(context).textTheme.titleSmall),
+                      Gaps.xs,
+                      Text(action['subtitle'] as String, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.textSecondary)),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+          Gaps.xl,
+          SectionHeader(title: 'Сохранённые материалы', subtitle: 'Новости, места и расписания'),
+          Gaps.s,
+          CardContainer(
+            child: Column(
+              children: [
+                _SavedRow(
+                  title: t.savedPosts,
+                  count: appState.savedPostIds.length,
+                  onTap: appState.savedPostIds.isEmpty ? null : () => context.go('/news'),
+                ),
+                const Divider(),
+                _SavedRow(
+                  title: t.savedPlaces,
+                  count: appState.savedPlaceIds.length,
+                  onTap: appState.savedPlaceIds.isEmpty ? null : () => context.go('/map'),
+                ),
+                const Divider(),
+                _SavedRow(
+                  title: t.savedSchedules,
+                  count: appState.savedScheduleIds.length,
+                  onTap: appState.savedScheduleIds.isEmpty ? null : () => context.push('/home/transport'),
+                ),
+              ],
+            ),
+          ),
+          Gaps.xl,
+          SectionHeader(title: 'Предпочтения', subtitle: 'Язык, уведомления и безопасность'),
+          Gaps.s,
+          CardContainer(
+            child: Column(
+              children: [
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.language),
+                  title: Text(t.language),
+                  subtitle: Text(t.changeLanguage),
+                  trailing: DropdownButtonHideUnderline(
+                    child: DropdownButton<Locale>(
+                      value: appState.locale,
+                      items: const [
+                        DropdownMenuItem(value: Locale('ru'), child: Text('Русский')),
+                        DropdownMenuItem(value: Locale('kk'), child: Text('Қазақша')),
+                        DropdownMenuItem(value: Locale('en'), child: Text('English')),
+                      ],
+                      onChanged: (loc) => context.read<AppState>().setLocale(loc),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'aitraihan@gmail.com',
-                      style: TextStyle(
-                        color: Colors.grey[600],
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+                const Divider(),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.notifications_active_outlined),
+                  title: const Text('Уведомления'),
+                  subtitle: const Text('Настроить push и e-mail оповещения'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/profile/settings'),
+                ),
+                const Divider(),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(Icons.devices_other_outlined),
+                  title: const Text('Активные сеансы'),
+                  subtitle: const Text('Управление устройствами и безопасностью'),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/profile/settings'),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 32),
-          // Язык
-          ProfileSection(
-            title: t.language,
-            child: DropdownButton<Locale>(
-              value: appState.locale,
-              hint: Text(t.changeLanguage),
-              items: const [
-                DropdownMenuItem(value: Locale('ru'), child: Text('Русский')),
-                DropdownMenuItem(value: Locale('kk'), child: Text('Қазақша')),
-                DropdownMenuItem(value: Locale('en'), child: Text('English')),
-              ],
-              onChanged: (loc) => context.read<AppState>().setLocale(loc),
-            ),
-          ),
-          // Быстрый доступ к сервисам профиля
-          ProfileSection(
-            title: 'Мои документы и сервисы',
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const Icon(Icons.badge_outlined),
-                  title: const Text('Идентификация и адреса'),
-                  subtitle: const Text('Паспорт, регистрация адреса'),
-                  onTap: () => context.push('/home/services/identification'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.directions_car_outlined),
-                  title: const Text('Транспорт'),
-                  subtitle: const Text('Водительское удостоверение, ТС'),
-                  onTap: () => context.push('/home/services/transport'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.family_restroom),
-                  title: const Text('Семья'),
-                  subtitle: const Text('Свидетельства о рождении и браке'),
-                  onTap: () => context.push('/home/services/family'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.health_and_safety),
-                  title: const Text('Медицина'),
-                  subtitle: const Text('Электронные медкарты и записи'),
-                  onTap: () => context.push('/home/services/medicine'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.person_search),
-                  title: const Text('Соцобеспечение'),
-                  subtitle: const Text('Пенсии, пособия'),
-                  onTap: () => context.push('/home/services/social'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.school_outlined),
-                  title: const Text('Образование'),
-                  subtitle: const Text('Дипломы, сертификаты'),
-                  onTap: () => context.push('/home/services/education'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.home_outlined),
-                  title: const Text('Имущество'),
-                  subtitle: const Text('Недвижимость, транспорт'),
-                  onTap: () => context.push('/home/services/property'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.work_outline),
-                  title: const Text('Трудоустройство'),
-                  subtitle: const Text('Трудовая книжка, отзывы'),
-                  onTap: () => context.push('/home/services/employment'),
-                ),
-                ListTile(
-                  leading: const Icon(Icons.gpp_good_outlined),
-                  title: const Text('Доверенности'),
-                  subtitle: const Text('На транспорт, недвижимость'),
-                  onTap: () => context.push('/home/services/powers'),
-                ),
-              ],
-            ),
-          ),
-          // Сохраненные посты
-          ProfileSection(
-            title: t.savedPosts,
-            child: Column(
-              children: [
-                if (appState.savedPostIds.isEmpty)
-                  Align(alignment: Alignment.centerLeft, child: Text(t.emptyList))
-                else
-                  ...appState.savedPostIds.map((id) {
-                    final matches = mockPosts.where((p) => p.id == id).toList();
-                    final title = matches.isNotEmpty ? matches.first.title : 'Post $id';
-                    return ListTile(
-                      title: Text(title),
-                      onTap: () => context.push('/home/post/$id'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => context.read<AppState>().toggleSavedPost(id),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
-          // Сохраненные места
-          ProfileSection(
-            title: t.savedPlaces,
-            child: Column(
-              children: [
-                if (appState.savedPlaceIds.isEmpty)
-                  Align(alignment: Alignment.centerLeft, child: Text(t.emptyList))
-                else
-                  ...appState.savedPlaceIds.map((id) {
-                    final matches = mockPlaces.where((p) => p.id == id).toList();
-                    final title = matches.isNotEmpty ? matches.first.name : 'Place $id';
-                    return ListTile(
-                      title: Text(title),
-                      onTap: () => context.push('/map/place/$id'),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => context.read<AppState>().toggleSavedPlace(id),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
-          // Сохраненные расписания
-          ProfileSection(
-            title: t.savedSchedules,
-            child: Column(
-              children: [
-                if (appState.savedScheduleIds.isEmpty)
-                  Align(alignment: Alignment.centerLeft, child: Text(t.emptyList))
-                else
-                  ...appState.savedScheduleIds.map((id) {
-                    final matches = mockSchedule.where((s) => s.id == id).toList();
-                    final title = matches.isNotEmpty ? matches.first.title : 'Schedule $id';
-                    return ListTile(
-                      title: Text(title),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => context.read<AppState>().toggleSavedSchedule(id),
-                      ),
-                    );
-                  }),
-              ],
-            ),
-          ),
+          const SizedBox(height: 80),
         ],
       ),
     );
   }
 }
 
-// Вспомогательный виджет для секций профиля
-class ProfileSection extends StatelessWidget {
-  final String title;
-  final Widget child;
-  const ProfileSection({required this.title, required this.child, super.key});
+final _quickActions = [
+  {'title': 'Идентификация', 'subtitle': 'Паспорт и адреса', 'icon': Icons.badge_outlined, 'route': '/home/services/identification'},
+  {'title': 'Транспорт', 'subtitle': 'Водитель и ТС', 'icon': Icons.directions_bus_outlined, 'route': '/home/services/transport'},
+  {'title': 'Медицина', 'subtitle': 'Карта и записи', 'icon': Icons.local_hospital, 'route': '/home/services/medicine'},
+  {'title': 'Семья', 'subtitle': 'Свидетельства', 'icon': Icons.family_restroom, 'route': '/home/services/family'},
+];
+
+class _ProfileStat extends StatelessWidget {
+  final String label;
+  final String value;
+  const _ProfileStat({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 24, top: 0),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-          ),
-          const SizedBox(height: 8),
-          child,
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(value, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white)),
+        Text(label, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70)),
+      ],
+    );
+  }
+}
+
+class _SavedRow extends StatelessWidget {
+  final String title;
+  final int count;
+  final VoidCallback? onTap;
+  const _SavedRow({required this.title, required this.count, this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      title: Text(title),
+      subtitle: Text(count == 0 ? 'Нет элементов' : '$count элементов'),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap,
     );
   }
 }

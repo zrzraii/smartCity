@@ -17,22 +17,21 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   late User _currentUser;
-  late PageController _pageController;
   int _currentPage = 0;
   late NotificationSettings _localNotificationSettings;
+  static const List<String> _tabs = [
+    'Профиль',
+    'Безопасность',
+    'Уведомления',
+    'Язык',
+    'Сессии',
+  ];
 
   @override
   void initState() {
     super.initState();
     _currentUser = mockCurrentUser;
     _localNotificationSettings = mockNotificationSettings;
-    _pageController = PageController();
-  }
-
-  @override
-  void dispose() {
-    _pageController.dispose();
-    super.dispose();
   }
 
   @override
@@ -49,53 +48,54 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ?.copyWith(fontWeight: FontWeight.w700),
         ),
       ),
-      body: PageView(
-        controller: _pageController,
-        onPageChanged: (index) {
-          setState(() => _currentPage = index);
-        },
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileTab(context, t),
-          _buildSecurityTab(context, t),
-          _buildNotificationsTab(context, t),
-          _buildLanguageTab(context, t),
-          _buildSessionsTab(context, t),
-        ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentPage,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index) {
-          _pageController.animateToPage(
-            index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: 'Профиль',
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 42,
+            child: ListView.separated(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              scrollDirection: Axis.horizontal,
+              itemCount: _tabs.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 8),
+              itemBuilder: (context, index) => FilterPill(
+                label: _tabs[index],
+                isActive: _currentPage == index,
+                onTap: () => setState(() => _currentPage = index),
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.lock),
-            label: 'Безопасность',
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.notifications),
-            label: 'Уведомления',
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.language),
-            label: 'Язык',
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.devices),
-            label: 'Сессии',
+          const SizedBox(height: 8),
+          Expanded(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 250),
+              switchInCurve: Curves.easeOut,
+              switchOutCurve: Curves.easeIn,
+              child: KeyedSubtree(
+                key: ValueKey(_currentPage),
+                child: _buildCurrentTab(context, t),
+              ),
+            ),
           ),
         ],
       ),
     );
+  }
+
+  Widget _buildCurrentTab(BuildContext context, AppLocalizations t) {
+    switch (_currentPage) {
+      case 1:
+        return _buildSecurityTab(context, t);
+      case 2:
+        return _buildNotificationsTab(context, t);
+      case 3:
+        return _buildLanguageTab(context, t);
+      case 4:
+        return _buildSessionsTab(context, t);
+      default:
+        return _buildProfileTab(context, t);
+    }
   }
 
   // ============= PROFILE TAB =============
@@ -557,7 +557,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Gaps.m,
               ],
             );
-          }).toList(),
+          }),
           Gaps.xxl,
         ],
       ),
@@ -659,7 +659,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 8),
                               decoration: BoxDecoration(
-                                color: AppColors.success.withOpacity(0.1),
+                                color: fadedColor(AppColors.success, 0.1),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Text(
@@ -746,7 +746,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Gaps.m,
               ],
             );
-          }).toList(),
+          }),
           Gaps.xxl,
         ],
       ),
@@ -778,7 +778,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.08),
+                      color: fadedColor(AppColors.primary, 0.08),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(icon, color: AppColors.primary, size: 20),

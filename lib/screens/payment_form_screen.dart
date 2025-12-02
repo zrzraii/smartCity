@@ -68,8 +68,8 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Заявка отправлена (мок).')));
-    // go to history
-    context.push('/home/submissions');
+    // go to appeals history
+    context.push('/home/appeals');
   }
 
   @override

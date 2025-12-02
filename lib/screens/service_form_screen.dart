@@ -77,7 +77,7 @@ class _ServiceFormScreenState extends State<ServiceFormScreen> {
     setState(() => _submitting = false);
 
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Заявка отправлена (мок).')));
-    context.push('/home/submissions');
+    context.push('/home/appeals');
   }
 
   @override

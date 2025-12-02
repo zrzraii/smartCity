@@ -13,9 +13,10 @@ import 'screens/news_screen.dart';
 import 'screens/services_screen.dart';
 import 'screens/service_category_screen.dart';
 import 'screens/service_form_screen.dart';
-import 'screens/submissions_history_screen.dart';
+import 'screens/appeals_screen.dart';
 import 'screens/post_detail_screen.dart';
 import 'screens/place_detail_screen.dart';
+import 'screens/transport_schedule_screen.dart';
 
 class AppRouter {
   static GoRouter build(AppState appState) {
@@ -74,9 +75,14 @@ class AppRouter {
                       },
                     ),
                     GoRoute(
-                      path: 'submissions',
-                      name: 'submissions',
-                      builder: (context, state) => const SubmissionsHistoryScreen(),
+                      path: 'appeals',
+                      name: 'appeals',
+                      builder: (context, state) => const AppealsScreen(),
+                    ),
+                    GoRoute(
+                      path: 'transport',
+                      name: 'transport',
+                      builder: (context, state) => const TransportScheduleScreen(),
                     ),
                   ],
                 ),
@@ -171,34 +177,34 @@ class _ShellState extends State<_Shell> {
       body: widget.navigationShell,
       bottomNavigationBar: NavigationBar(
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.primary.withOpacity(0.1),
+        indicatorColor: fadedColor(AppColors.primary, 0.1),
         height: 60,
         selectedIndex: currentIndex,
         onDestinationSelected: _onTap,
         destinations: [
           NavigationDestination(
-            icon: const Icon(Icons.home_outlined, color: AppColors.textSecondary),
-            selectedIcon: const Icon(Icons.home, color: AppColors.primary),
-              label: t.tabHome,
+            icon: const Icon(Icons.home_outlined),
+            selectedIcon: const Icon(Icons.home),
+            label: t.tabHome,
           ),
-            NavigationDestination(
-              icon: const Icon(Icons.article_outlined, color: AppColors.textSecondary),
-              selectedIcon: const Icon(Icons.article, color: AppColors.primary),
-              label: 'Новости',
-            ),
+          const NavigationDestination(
+            icon: Icon(Icons.article_outlined),
+            selectedIcon: Icon(Icons.article),
+            label: 'Новости',
+          ),
           NavigationDestination(
-            icon: const Icon(Icons.map_outlined, color: AppColors.textSecondary),
-            selectedIcon: const Icon(Icons.map, color: AppColors.primary),
+            icon: const Icon(Icons.map_outlined),
+            selectedIcon: const Icon(Icons.map),
             label: t.tabMap,
           ),
-          NavigationDestination(
-            icon: const Icon(Icons.notifications_outlined, color: AppColors.textSecondary),
-            selectedIcon: const Icon(Icons.notifications, color: AppColors.primary),
+          const NavigationDestination(
+            icon: Icon(Icons.notifications_outlined),
+            selectedIcon: Icon(Icons.notifications),
             label: 'Оповещения',
           ),
           NavigationDestination(
-            icon: const Icon(Icons.person_outline, color: AppColors.textSecondary),
-            selectedIcon: const Icon(Icons.person, color: AppColors.primary),
+            icon: const Icon(Icons.person_outline),
+            selectedIcon: const Icon(Icons.person),
             label: t.tabProfile,
           ),
         ],

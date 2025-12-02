@@ -73,41 +73,4 @@ class ServiceCategoryScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildItemDetail(BuildContext context, Map<String, dynamic> item) {
-    final fields = (item['fields'] as List<dynamic>).cast<String>();
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(item['title'] as String, style: Theme.of(context).textTheme.titleLarge),
-              IconButton(onPressed: () => Navigator.pop(context), icon: const Icon(Icons.close)),
-            ],
-          ),
-          Gaps.s,
-          Text(item['description'] as String, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.textSecondary)),
-          Gaps.m,
-          Text('Поля для заполнения:', style: Theme.of(context).textTheme.bodyMedium),
-          Gaps.s,
-          ...fields.map((f) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Text('• $f', style: Theme.of(context).textTheme.bodySmall),
-              )),
-          Gaps.m,
-          PrimaryButton(
-            text: 'Начать оформление',
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Оформление "${item['title']}" начато (мок)')));
-            },
-          ),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
 }

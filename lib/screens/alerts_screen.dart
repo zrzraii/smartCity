@@ -268,8 +268,7 @@ class _AlertsScreenState extends State<AlertsScreen> {
                                       Gaps.xs,
                                       AlertBadge(
                                         label: _getSeverityLabel(alert.severity),
-                                        backgroundColor: severityColor
-                                            .withOpacity(0.1),
+                                        backgroundColor: fadedColor(severityColor, 0.1),
                                         textColor: severityColor,
                                       ),
                                     ],
